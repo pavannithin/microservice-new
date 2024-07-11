@@ -20,9 +20,9 @@ public class Controller {
 //    localhost:8082/inventory/iphone_13,iphone_14 if we take @PathVariable("sku-code") List<String> skuCode not more readable
 //    localhost:8082/inventory?sku-code=iphone_13&sku-code=iphone_14 if we take @RequestParam("sku-code") List<String>
 //    skuCode more readable
-    @GetMapping("/{sku-code}")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<InventoryResponse> isInStock(@RequestParam("sku-code") List<String> skuCode){
+    public List<InventoryResponse> isInStock(@RequestParam("skuCode") List<String> skuCode){
         return service.isInStock(skuCode);
     }
 }
