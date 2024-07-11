@@ -7,6 +7,7 @@ import com.microservice.orderService.model.OrderLineItems;
 import com.microservice.orderService.repos.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,13 +16,27 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
+    private final WebClient webClient;
 
-    public void placeOrder(OrderRequest orderRequest){
+    public void placeOrder(OrderRequest orderRequest) {
         Order order = new Order();
         order.setOrderNumber(UUID.randomUUID().toString());
         List<OrderLineItems> orderLineItems = orderRequest.getOrderLineItems().stream().map(this::mapToDto).toList();
         order.setOrderLineItems(orderLineItems);
-        orderRepository.save(order);
+/*
+Before placing order  willi will check if all the
+ products are present by calling inventory service API
+  using web client(webclient supports both synchronous
+  and asynchronous calls then rest template)
+*/
+        /*body to mono method takes the return type of the API*/
+        Boolean isOrder = webClient.get().uri("hhttp://localhost:8082/api/inventory").retrieve().bodyToMono(boolean.class).block();
+        if (isOrder) {
+            orderRepository.save(order);
+        } else {
+            throw new IllegalArgumentException("Product is not in the stock, please try again later");
+        }
+
     }
 
     private OrderLineItems mapToDto(OrderLineItemsDto orderLineItemsDto) {
