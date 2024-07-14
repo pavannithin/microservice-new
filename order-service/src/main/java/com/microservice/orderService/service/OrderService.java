@@ -18,7 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
-    private final WebClient webClient;
+    private final WebClient.Builder webClientBuilder;
 
     public void placeOrder(OrderRequest orderRequest) {
         Order order = new Order();
@@ -27,7 +27,7 @@ public class OrderService {
         order.setOrderLineItems(orderLineItems);
         List<String> orderSKUCodesList = order.getOrderLineItems().stream().map(OrderLineItems::getSkuCode).toList();
         /*
-        Before placing order  willi will check if all the
+        Before placing order  i will check if all the
          products are present by calling inventory service API
           using web client(webclient supports both synchronous
           and asynchronous calls then rest template)
@@ -35,7 +35,7 @@ public class OrderService {
 
         /* Body to mono method takes the return type of the API */
 
-        InventoryResponse[] inventoryResponses = webClient.get().uri("http://localhost:8082/api/inventory",
+        InventoryResponse[] inventoryResponses = webClientBuilder.build().get().uri("http://inventory-service/api/inventory",
                         uriBuilder -> uriBuilder.queryParam("skuCode", orderSKUCodesList).build())
                 .retrieve().bodyToMono(InventoryResponse[].class)
                 .block();

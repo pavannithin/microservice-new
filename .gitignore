@@ -1,0 +1,5 @@
+/discovery-server/target/
+/.idea/
+/inventory-service/target/
+/order-service/target/
+/product-catalog/target/
